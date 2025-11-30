@@ -2,12 +2,11 @@ import { DashboardTile } from "@/components/DashboardTile";
 import {
   Calendar,
   Users,
-  FolderOpen,
-  ScanLine,
   Calculator,
   BarChart3,
   RefreshCw,
   Settings,
+  FolderOpen,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -31,24 +30,10 @@ const Index = () => {
     },
     {
       title: "Patients",
-      description: "Base de données patients",
+      description: "Dossiers, documents & historique",
       icon: Users,
       colorScheme: "patients" as const,
-      onClick: () => handleTileClick("Patients"),
-    },
-    {
-      title: "Dossiers",
-      description: "Dossiers médicaux",
-      icon: FolderOpen,
-      colorScheme: "dossiers" as const,
-      onClick: () => handleTileClick("Dossiers"),
-    },
-    {
-      title: "Scanner",
-      description: "Numériser documents",
-      icon: ScanLine,
-      colorScheme: "scanner" as const,
-      onClick: () => handleTileClick("Scanner"),
+      href: "/patients",
     },
     {
       title: "Comptabilité",
@@ -106,7 +91,7 @@ const Index = () => {
 
       {/* Main Dashboard */}
       <main className="container mx-auto px-6 py-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {tiles.map((tile) => (
             <DashboardTile key={tile.title} {...tile} />
           ))}
