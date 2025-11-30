@@ -1,17 +1,19 @@
 import { useState } from "react";
-import { ArrowLeft, FileText, Upload, Search, Edit } from "lucide-react";
+import { ArrowLeft, FileText, Upload, Search } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { usePatient } from "@/hooks/usePatients";
 import { useMedicalRecord, useCreateOrUpdateMedicalRecord } from "@/hooks/useMedicalRecords";
 import { useDocuments, useCreateDocument, useDeleteDocument } from "@/hooks/useDocuments";
 import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MedicalRecordSection } from "@/components/MedicalRecordSection";
+import { AllergiesSection } from "@/components/AllergiesSection";
+import { TreatmentsSection } from "@/components/TreatmentsSection";
+import { antecedentsTemplates } from "@/data/medicalTemplates";
 
 const PatientDetail = () => {
   const navigate = useNavigate();
@@ -52,7 +54,6 @@ const PatientDetail = () => {
       patientId: id,
       data: { [section]: medicalData[section] },
     });
-    setEditingSection(null);
   };
 
   const filteredDocuments = documents.filter((doc) => {
@@ -133,148 +134,61 @@ const PatientDetail = () => {
           {/* Medical Record Tab */}
           <TabsContent value="medical" className="mt-6 space-y-6">
             {/* Antécédents */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Antécédents Médicaux</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setEditingSection(editingSection === "antecedents" ? null : "antecedents")}
-                >
-                  <Edit className="w-4 h-4" />
-                </Button>
-              </div>
-              {editingSection === "antecedents" ? (
-                <div className="space-y-4">
-                  <Textarea
-                    value={medicalData.antecedents}
-                    onChange={(e) => setMedicalData({ ...medicalData, antecedents: e.target.value })}
-                    placeholder="Historique des maladies, opérations, hospitalisations..."
-                    rows={6}
-                  />
-                  <div className="flex gap-2">
-                    <Button onClick={() => handleSaveSection("antecedents")} size="sm">
-                      Enregistrer
-                    </Button>
-                    <Button onClick={() => setEditingSection(null)} variant="outline" size="sm">
-                      Annuler
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-muted-foreground whitespace-pre-wrap">
-                  {medicalData.antecedents || "Aucun antécédent enregistré"}
-                </p>
-              )}
-            </Card>
+            <MedicalRecordSection
+              title="Antécédents Médicaux"
+              value={medicalData.antecedents}
+              onSave={(value) => {
+                setMedicalData({ ...medicalData, antecedents: value });
+                handleSaveSection("antecedents");
+              }}
+              placeholder="Historique des maladies, opérations, hospitalisations..."
+              templates={antecedentsTemplates}
+              isEditing={editingSection === "antecedents"}
+              onEditToggle={() =>
+                setEditingSection(editingSection === "antecedents" ? null : "antecedents")
+              }
+            />
 
             {/* Allergies */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Allergies et Contre-indications</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setEditingSection(editingSection === "allergies" ? null : "allergies")}
-                >
-                  <Edit className="w-4 h-4" />
-                </Button>
-              </div>
-              {editingSection === "allergies" ? (
-                <div className="space-y-4">
-                  <Textarea
-                    value={medicalData.allergies}
-                    onChange={(e) => setMedicalData({ ...medicalData, allergies: e.target.value })}
-                    placeholder="Liste des allergies connues, contre-indications..."
-                    rows={4}
-                  />
-                  <div className="flex gap-2">
-                    <Button onClick={() => handleSaveSection("allergies")} size="sm">
-                      Enregistrer
-                    </Button>
-                    <Button onClick={() => setEditingSection(null)} variant="outline" size="sm">
-                      Annuler
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-muted-foreground whitespace-pre-wrap">
-                  {medicalData.allergies || "Aucune allergie enregistrée"}
-                </p>
-              )}
-            </Card>
+            <AllergiesSection
+              value={medicalData.allergies}
+              onSave={(value) => {
+                setMedicalData({ ...medicalData, allergies: value });
+                handleSaveSection("allergies");
+              }}
+              isEditing={editingSection === "allergies"}
+              onEditToggle={() =>
+                setEditingSection(editingSection === "allergies" ? null : "allergies")
+              }
+            />
 
             {/* Traitements */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Traitements en Cours</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setEditingSection(editingSection === "traitements" ? null : "traitements")}
-                >
-                  <Edit className="w-4 h-4" />
-                </Button>
-              </div>
-              {editingSection === "traitements" ? (
-                <div className="space-y-4">
-                  <Textarea
-                    value={medicalData.traitements}
-                    onChange={(e) => setMedicalData({ ...medicalData, traitements: e.target.value })}
-                    placeholder="Médicaments et prescriptions actuels..."
-                    rows={5}
-                  />
-                  <div className="flex gap-2">
-                    <Button onClick={() => handleSaveSection("traitements")} size="sm">
-                      Enregistrer
-                    </Button>
-                    <Button onClick={() => setEditingSection(null)} variant="outline" size="sm">
-                      Annuler
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-muted-foreground whitespace-pre-wrap">
-                  {medicalData.traitements || "Aucun traitement en cours"}
-                </p>
-              )}
-            </Card>
+            <TreatmentsSection
+              value={medicalData.traitements}
+              onSave={(value) => {
+                setMedicalData({ ...medicalData, traitements: value });
+                handleSaveSection("traitements");
+              }}
+              isEditing={editingSection === "traitements"}
+              onEditToggle={() =>
+                setEditingSection(editingSection === "traitements" ? null : "traitements")
+              }
+            />
 
             {/* Notes */}
-            <Card className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold">Notes Médicales</h3>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setEditingSection(editingSection === "notes" ? null : "notes")}
-                >
-                  <Edit className="w-4 h-4" />
-                </Button>
-              </div>
-              {editingSection === "notes" ? (
-                <div className="space-y-4">
-                  <Textarea
-                    value={medicalData.notes}
-                    onChange={(e) => setMedicalData({ ...medicalData, notes: e.target.value })}
-                    placeholder="Notes libres du praticien..."
-                    rows={6}
-                  />
-                  <div className="flex gap-2">
-                    <Button onClick={() => handleSaveSection("notes")} size="sm">
-                      Enregistrer
-                    </Button>
-                    <Button onClick={() => setEditingSection(null)} variant="outline" size="sm">
-                      Annuler
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-muted-foreground whitespace-pre-wrap">
-                  {medicalData.notes || "Aucune note enregistrée"}
-                </p>
-              )}
-            </Card>
+            <MedicalRecordSection
+              title="Notes Médicales"
+              value={medicalData.notes}
+              onSave={(value) => {
+                setMedicalData({ ...medicalData, notes: value });
+                handleSaveSection("notes");
+              }}
+              placeholder="Notes libres du praticien..."
+              isEditing={editingSection === "notes"}
+              onEditToggle={() =>
+                setEditingSection(editingSection === "notes" ? null : "notes")
+              }
+            />
           </TabsContent>
 
           {/* Documents Tab */}
