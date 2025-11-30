@@ -1,11 +1,13 @@
 import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface DashboardTileProps {
   title: string;
   description: string;
   icon: LucideIcon;
   onClick?: () => void;
+  href?: string;
   colorScheme?: "agenda" | "patients" | "dossiers" | "scanner" | "comptabilite" | "statistiques" | "sync" | "settings";
   disabled?: boolean;
 }
@@ -15,9 +17,20 @@ export const DashboardTile = ({
   description,
   icon: Icon,
   onClick,
+  href,
   colorScheme = "settings",
   disabled = false,
 }: DashboardTileProps) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    if (disabled) return;
+    if (href) {
+      navigate(href);
+    } else if (onClick) {
+      onClick();
+    }
+  };
   const getColorClasses = () => {
     const colors = {
       agenda: { bg: "bg-tile-agenda-light", icon: "bg-tile-agenda", text: "text-white" },
@@ -36,7 +49,7 @@ export const DashboardTile = ({
 
   return (
     <div
-      onClick={disabled ? undefined : onClick}
+      onClick={handleClick}
       className={cn(
         "tile-card group overflow-hidden relative",
         colors.bg,
