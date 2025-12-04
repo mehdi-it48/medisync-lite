@@ -223,7 +223,7 @@ const PatientDetail = () => {
                     ))}
                   </SelectContent>
                 </Select>
-                {id && <DocumentUploadDialog patientId={id} />}
+                {id && patient && <DocumentUploadDialog patientId={id} patientName={`${patient.prenom} ${patient.nom}`} />}
               </div>
             </Card>
 
@@ -244,7 +244,7 @@ const PatientDetail = () => {
                   <p className="text-muted-foreground mb-6">
                     {searchQuery ? "Aucun document ne correspond à votre recherche" : "Aucun document scanné pour ce patient"}
                   </p>
-                  {id && <DocumentUploadDialog patientId={id}>
+                  {id && patient && <DocumentUploadDialog patientId={id} patientName={`${patient.prenom} ${patient.nom}`}>
                     <Button className="gap-2">
                       <Upload className="w-4 h-4" />
                       Ajouter un document
@@ -255,7 +255,11 @@ const PatientDetail = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredDocuments.map((doc) => (
-                  <Card key={doc.id} className="p-4 hover:shadow-lg transition-shadow">
+                  <Card 
+                    key={doc.id} 
+                    className="p-4 hover:shadow-lg transition-shadow cursor-pointer group"
+                    onClick={() => window.open(doc.url, '_blank')}
+                  >
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <FileText className="w-5 h-5 text-[hsl(var(--tile-scanner))]" />
@@ -264,14 +268,20 @@ const PatientDetail = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => id && deleteDocument.mutate({ id: doc.id, patientId: id })}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          id && deleteDocument.mutate({ id: doc.id, patientId: id });
+                        }}
                       >
                         ✕
                       </Button>
                     </div>
-                    <h4 className="font-semibold text-foreground mb-2">{doc.nom}</h4>
+                    <h4 className="font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">{doc.nom}</h4>
                     <p className="text-sm text-muted-foreground">
                       {new Date(doc.created_at).toLocaleDateString("fr-FR")}
+                    </p>
+                    <p className="text-xs text-primary mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      Cliquer pour ouvrir
                     </p>
                   </Card>
                 ))}

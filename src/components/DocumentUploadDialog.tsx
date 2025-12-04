@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Upload, FileText, Loader2, Eye, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface DocumentUploadDialogProps {
   patientId: string;
+  patientName: string;
   children?: React.ReactNode;
 }
 
@@ -25,7 +26,7 @@ const DOCUMENT_TYPES = [
   "Autre",
 ];
 
-export const DocumentUploadDialog = ({ patientId, children }: DocumentUploadDialogProps) => {
+export const DocumentUploadDialog = ({ patientId, patientName, children }: DocumentUploadDialogProps) => {
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
@@ -38,12 +39,19 @@ export const DocumentUploadDialog = ({ patientId, children }: DocumentUploadDial
   
   const createDocument = useCreateDocument();
 
+  // Auto-generate document name when type changes
+  useEffect(() => {
+    if (documentType && patientName) {
+      const date = new Date().toLocaleDateString("fr-FR");
+      setDocumentName(`${documentType} de ${patientName} - ${date}`);
+    }
+  }, [documentType, patientName]);
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
     setFile(selectedFile);
-    setDocumentName(selectedFile.name.replace(/\.[^/.]+$/, ""));
 
     // Create preview for images
     if (selectedFile.type.startsWith("image/")) {
@@ -111,15 +119,28 @@ export const DocumentUploadDialog = ({ patientId, children }: DocumentUploadDial
     setIsUploading(true);
 
     try {
-      // For now, we'll store a placeholder URL
-      // In production, you'd upload to Supabase Storage
-      const fakeUrl = `documents/${patientId}/${Date.now()}_${file.name}`;
+      // Upload file to Supabase Storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${patientId}/${Date.now()}_${documentName.replace(/[^a-zA-Z0-9]/g, '_')}.${fileExt}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('patient-documents')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        throw new Error(uploadError.message);
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('patient-documents')
+        .getPublicUrl(fileName);
 
       await createDocument.mutateAsync({
         patient_id: patientId,
         nom: documentName,
         type: documentType,
-        url: fakeUrl,
+        url: publicUrl,
       });
 
       // Reset form
@@ -135,6 +156,11 @@ export const DocumentUploadDialog = ({ patientId, children }: DocumentUploadDial
       }
     } catch (error) {
       console.error("Upload error:", error);
+      toast({
+        title: "Erreur d'upload",
+        description: error instanceof Error ? error.message : "Impossible d'uploader le fichier",
+        variant: "destructive",
+      });
     } finally {
       setIsUploading(false);
     }
