@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, FileText, Upload, Search, Activity, StickyNote, Pill, TestTube, Scan, ClipboardList, Award, Mail, MoreHorizontal } from "lucide-react";
+import { ArrowLeft, FileText, Upload, Search, Activity, StickyNote, Pill, TestTube, Scan, ClipboardList, Award, Mail, MoreHorizontal, X, Eye } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -275,38 +275,52 @@ const PatientDetail = () => {
                   return (
                     <Card 
                       key={doc.id} 
-                      className={cn(
-                        "p-4 hover:shadow-lg transition-all cursor-pointer group border-2",
-                        style.bgColor,
-                        style.borderColor
-                      )}
+                      className="overflow-hidden hover:shadow-lg transition-all cursor-pointer group bg-card"
                       onClick={() => window.open(doc.url, '_blank')}
                     >
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <Icon className={cn("w-5 h-5", style.textColor)} />
-                          <Badge className={style.badgeClass}>{doc.type}</Badge>
+                      <div className="flex">
+                        {/* Color indicator bar */}
+                        <div className={cn("w-1.5 shrink-0", style.bgColor.replace('/10', ''))} />
+                        
+                        <div className="flex-1 p-4">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className={cn("p-2 rounded-lg", style.bgColor)}>
+                              <Icon className={cn("w-5 h-5", style.textColor)} />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Badge variant="secondary" className="text-xs">{doc.type}</Badge>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  id && deleteDocument.mutate({ id: doc.id, patientId: id });
+                                }}
+                              >
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          <h4 className="font-medium text-foreground text-sm leading-snug mb-2 line-clamp-2">
+                            {doc.nom}
+                          </h4>
+                          
+                          <div className="flex items-center justify-between">
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(doc.created_at).toLocaleDateString("fr-FR", { 
+                                day: 'numeric', 
+                                month: 'short', 
+                                year: 'numeric' 
+                              })}
+                            </p>
+                            <span className="text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                              Ouvrir <Eye className="w-3 h-3" />
+                            </span>
+                          </div>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            id && deleteDocument.mutate({ id: doc.id, patientId: id });
-                          }}
-                        >
-                          ✕
-                        </Button>
                       </div>
-                      <div className="bg-background/80 rounded-md px-3 py-2 mb-2">
-                        <h4 className="font-semibold text-foreground leading-tight">{doc.nom}</h4>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(doc.created_at).toLocaleDateString("fr-FR")}
-                      </p>
-                      <p className={cn("text-xs mt-2 opacity-0 group-hover:opacity-100 transition-opacity", style.textColor)}>
-                        Cliquer pour ouvrir
-                      </p>
                     </Card>
                   );
                 })}
