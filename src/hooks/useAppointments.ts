@@ -15,6 +15,7 @@ export type Appointment = {
   patient?: {
     nom: string;
     prenom: string;
+    telephone: string | null;
   };
 };
 
@@ -26,7 +27,7 @@ export const useAppointments = (date?: string) => {
         .from('appointments')
         .select(`
           *,
-          patient:patients(nom, prenom)
+          patient:patients(nom, prenom, telephone)
         `)
         .order('date', { ascending: true })
         .order('heure_debut', { ascending: true });

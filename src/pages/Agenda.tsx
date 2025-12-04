@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Plus, Clock, ChevronLeft, ChevronRight, Edit, User } from "lucide-react";
+import { ArrowLeft, Plus, Clock, ChevronLeft, ChevronRight, Edit, User, Phone } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -284,7 +284,7 @@ const Agenda = () => {
                                   {apt.heure_fin.slice(0, 5)}
                                 </p>
                               </div>
-                              <div>
+                              <div className="flex-1">
                                 <div className="flex items-center gap-2">
                                   <User className="w-4 h-4 text-muted-foreground" />
                                   <p className="font-semibold text-foreground">
@@ -298,6 +298,17 @@ const Agenda = () => {
                                   </p>
                                 )}
                               </div>
+                              {/* Phone number - prominent display */}
+                              {apt.patient?.telephone && (
+                                <a 
+                                  href={`tel:${apt.patient.telephone}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="flex items-center gap-2 px-3 py-2 bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
+                                >
+                                  <Phone className="w-4 h-4 text-primary" />
+                                  <span className="font-semibold text-primary">{apt.patient.telephone}</span>
+                                </a>
+                              )}
                             </div>
                             <div className="flex items-center gap-2">
                               {getStatusBadge(apt.statut)}

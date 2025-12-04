@@ -54,7 +54,7 @@ export const AppointmentDialog = ({
   const deleteAppointment = useDeleteAppointment();
 
   const [isNewPatient, setIsNewPatient] = useState(false);
-  const [newPatientName, setNewPatientName] = useState({ nom: "", prenom: "" });
+  const [newPatientData, setNewPatientData] = useState({ nom: "", prenom: "", telephone: "" });
 
   const [formData, setFormData] = useState<{
     patient_id: string;
@@ -99,7 +99,7 @@ export const AppointmentDialog = ({
         notes: "",
       });
       setIsNewPatient(false);
-      setNewPatientName({ nom: "", prenom: "" });
+      setNewPatientData({ nom: "", prenom: "", telephone: "" });
     }
   }, [appointment, defaultDate, defaultTime, open]);
 
@@ -109,13 +109,13 @@ export const AppointmentDialog = ({
     let patientId = formData.patient_id;
 
     // If new patient, create them first
-    if (isNewPatient && newPatientName.nom && newPatientName.prenom) {
+    if (isNewPatient && newPatientData.nom && newPatientData.prenom) {
       try {
         const newPatient = await createPatient.mutateAsync({
-          nom: newPatientName.nom,
-          prenom: newPatientName.prenom,
+          nom: newPatientData.nom,
+          prenom: newPatientData.prenom,
           date_naissance: null,
-          telephone: null,
+          telephone: newPatientData.telephone || null,
           email: null,
           adresse: null,
           mutuelle: null,
@@ -160,7 +160,7 @@ export const AppointmentDialog = ({
   };
 
   const isValid = isNewPatient 
-    ? (newPatientName.nom && newPatientName.prenom) 
+    ? (newPatientData.nom && newPatientData.prenom) 
     : formData.patient_id;
 
   return (
@@ -193,23 +193,35 @@ export const AppointmentDialog = ({
 
           {/* Patient Selection or New Patient */}
           {isNewPatient && !isEditing ? (
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1">
-                <Label className="text-xs">Prénom *</Label>
-                <Input
-                  value={newPatientName.prenom}
-                  onChange={(e) => setNewPatientName({ ...newPatientName, prenom: e.target.value })}
-                  placeholder="Prénom"
-                  className="h-9"
-                />
+            <div className="space-y-2">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-xs">Prénom *</Label>
+                  <Input
+                    value={newPatientData.prenom}
+                    onChange={(e) => setNewPatientData({ ...newPatientData, prenom: e.target.value })}
+                    placeholder="Prénom"
+                    className="h-9"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Nom *</Label>
+                  <Input
+                    value={newPatientData.nom}
+                    onChange={(e) => setNewPatientData({ ...newPatientData, nom: e.target.value })}
+                    placeholder="Nom"
+                    className="h-9"
+                  />
+                </div>
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Nom *</Label>
+                <Label className="text-xs">Téléphone</Label>
                 <Input
-                  value={newPatientName.nom}
-                  onChange={(e) => setNewPatientName({ ...newPatientName, nom: e.target.value })}
-                  placeholder="Nom"
+                  value={newPatientData.telephone}
+                  onChange={(e) => setNewPatientData({ ...newPatientData, telephone: e.target.value })}
+                  placeholder="06 12 34 56 78"
                   className="h-9"
+                  type="tel"
                 />
               </div>
             </div>
