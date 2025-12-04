@@ -280,11 +280,11 @@ const PatientDetail = () => {
                     >
                       <div className="flex">
                         {/* Color indicator bar */}
-                        <div className={cn("w-1.5 shrink-0", style.bgColor.replace('/10', ''))} />
+                        <div className={cn("w-1.5 shrink-0", style.textColor.replace('text-', 'bg-'))} />
                         
                         <div className="flex-1 p-4">
                           <div className="flex items-start justify-between mb-3">
-                            <div className={cn("p-2 rounded-lg", style.bgColor)}>
+                            <div className="p-2 rounded-lg bg-muted">
                               <Icon className={cn("w-5 h-5", style.textColor)} />
                             </div>
                             <div className="flex items-center gap-2">
