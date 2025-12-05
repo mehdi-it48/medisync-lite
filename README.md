@@ -1,4 +1,4 @@
-# MediCare ERP
+# MediCare ERP M
 
 ## À propos
 
